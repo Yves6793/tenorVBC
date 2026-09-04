@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -790,5 +791,375 @@
 
   updateCard();
 </script>
+</body>
+</html>
+
+
+
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UP TÉNORD VBC — Générateur de Carte & Affiche Annonce</title>
+  
+  <!-- Polices Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bibliothèque HTML2Canvas pour le téléchargement en image -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <!-- Bibliothèque AI pour le détourage / suppression de fond automatique -->
+  <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/imgly-background-removal.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 30px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      color: #f59e0b;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+      text-align: center;
+      font-size: 1.8rem;
+    }
+
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    /* FORMULAIRE DE SAISIE */
+    .form-section {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 1px solid #334155;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #cbd5e1;
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #f59e0b;
+    }
+
+    .btn-download {
+      width: 100%;
+      padding: 14px;
+      background: #f59e0b;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-download:hover {
+      background: #d97706;
+    }
+
+    /* BLOC D'INDICATION DE CHARGEMENT */
+    .loading-status {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #1e3a8a;
+      color: #93c5fd;
+      font-size: 0.85rem;
+      text-align: center;
+      font-weight: 600;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* APERÇU DE L'AFFICHE ANNONCE */
+    .preview-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .poster-card {
+      width: 400px;
+      height: 500px;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      border: 3px solid #1e3a8a;
+    }
+
+    /* CALQUE 1 : Motif Filigrane Logo */
+    .layer-background-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 320px;
+      height: 320px;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* CALQUE 2 : Photo Joueur Détourée */
+    .layer-player-photo {
+      position: absolute;
+      bottom: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 82%;
+      max-width: 90%;
+      object-fit: contain;
+      z-index: 2;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+    }
+
+    /* CALQUE 3 : Logo Officiel en haut */
+    .layer-official-logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 65px;
+      height: 65px;
+      z-index: 3;
+    }
+
+    /* CALQUE 4 : Cartouche d'informations Joueur */
+    .layer-info-box {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+      background: #ffffff;
+      padding: 8px 24px;
+      border-radius: 6px;
+      text-align: center;
+      min-width: 260px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    }
+
+    .layer-info-box h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .layer-info-box p {
+      font-size: 0.85rem;
+      color: #475569;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* CALQUE 5 : Pied de page RS */
+    .layer-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #0f172a;
+      padding: 5px 0;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      letter-spacing: 1px;
+      z-index: 5;
+      border-top: 1px solid #1e3a8a;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Générateur d'Affiche — UP TÉNORD VBC</h1>
+
+  <div class="main-container">
+    
+    <!-- FORMULAIRE -->
+    <div class="form-section">
+      <div class="form-group">
+        <label for="input-name">Nom et Prénom du joueur</label>
+        <input type="text" id="input-name" placeholder="Ex: AYIHOSSOU Yves" value="NOM ET PRÉNOM">
+      </div>
+
+      <div class="form-group">
+        <label for="input-role">Poste du joueur</label>
+        <input type="text" id="input-role" placeholder="Ex: Libero / Réceptionneur-Attaquant" value="Poste">
+      </div>
+
+      <div class="form-group">
+        <label for="input-file">Photo du joueur (avec n'importe quel fond)</label>
+        <input type="file" id="input-file" accept="image/*">
+      </div>
+
+      <div id="loading-status" class="loading-status">
+        ⏳ Suppression de l'arrière-plan en cours par l'IA... Veuille patienter quelques secondes.
+      </div>
+
+      <button type="button" class="btn-download" id="btn-download">Télécharger l'Affiche (PNG)</button>
+    </div>
+
+    <!-- ZONE D'AFFICHAGE / CARTE -->
+    <div class="preview-section">
+      <div class="poster-card" id="poster-card">
+        
+        <!-- Logo officiel en haut à gauche -->
+        <svg class="layer-official-logo" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#f59e0b" stroke-width="4"/>
+          <text x="50%" y="45%" text-anchor="middle" fill="#ffffff" font-size="12" font-family="Montserrat" font-weight="800">UP TÉNORD</text>
+          <text x="50%" y="65%" text-anchor="middle" fill="#f59e0b" font-size="14" font-family="Montserrat" font-weight="900">VBC</text>
+        </svg>
+
+        <!-- Grand Logo filigrane en fond -->
+        <svg class="layer-background-logo" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff" stroke-width="5"/>
+          <text x="50%" y="55%" text-anchor="middle" fill="#ffffff" font-size="20" font-family="Montserrat" font-weight="900">UP TÉNORD</text>
+        </svg>
+
+        <!-- Photo détourée du joueur -->
+        <img id="player-photo" class="layer-player-photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23334155'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Joueur">
+
+        <!-- Cartouche texte -->
+        <div class="layer-info-box">
+          <h3 id="display-name">NOM ET PRÉNOM</h3>
+          <p id="display-role">Poste</p>
+        </div>
+
+        <!-- Pied de page -->
+        <div class="layer-footer">
+          f UP TÉNORD VBC
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Éléments du DOM
+    const inputName = document.getElementById('input-name');
+    const inputRole = document.getElementById('input-role');
+    const inputFile = document.getElementById('input-file');
+    
+    const displayName = document.getElementById('display-name');
+    const displayRole = document.getElementById('display-role');
+    const playerPhoto = document.getElementById('player-photo');
+    
+    const loadingStatus = document.getElementById('loading-status');
+    const btnDownload = document.getElementById('btn-download');
+
+    // 1. Mise à jour dynamique du texte
+    inputName.addEventListener('input', (e) => {
+      displayName.textContent = e.target.value.trim() !== '' ? e.target.value : 'NOM ET PRÉNOM';
+    });
+
+    inputRole.addEventListener('input', (e) => {
+      displayRole.textContent = e.target.value.trim() !== '' ? e.target.value : 'Poste';
+    });
+
+    // 2. Traitement de la photo et suppression du fond via AI
+    inputFile.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Afficher l'indicateur de chargement
+      loadingStatus.style.display = 'block';
+
+      try {
+        // Exécution de l'IA de détourage (supprime le décor/arrière-plan)
+        const imageBlob = await imglyRemoveBackground(file);
+        
+        // Affichage du joueur détouré (garde ses vêtements, couleurs, etc.)
+        const resultUrl = URL.createObjectURL(imageBlob);
+        playerPhoto.src = resultUrl;
+
+      } catch (error) {
+        console.error("Erreur de détourage :", error);
+        alert("Le détourage automatique a échoué. Chargement de l'image originale.");
+        playerPhoto.src = URL.createObjectURL(file);
+      } finally {
+        // Masquer l'indicateur de chargement
+        loadingStatus.style.display = 'none';
+      }
+    });
+
+    // 3. Exportation de l'affiche finale au format PNG
+    btnDownload.addEventListener('click', () => {
+      const cardElement = document.getElementById('poster-card');
+      
+      html2canvas(cardElement, {
+        scale: 2, // Haute qualité
+        useCORS: true,
+        backgroundColor: null
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Affiche_${displayName.textContent.replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    });
+  </script>
+
 </body>
 </html>
