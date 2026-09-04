@@ -804,15 +804,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UP TÉNORD VBC — Générateur de Carte & Affiche Annonce</title>
   
-  <!-- Polices Google -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   
-  <!-- Bibliothèque HTML2Canvas pour le téléchargement en image -->
+  <!-- Bibliothèque HTML2Canvas pour le téléchargement en image 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
-  <!-- Bibliothèque AI pour le détourage / suppression de fond automatique -->
+  <!-- Bibliothèque AI pour le détourage / suppression de fond automatique
   <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/imgly-background-removal.js"></script>
 
   <style>
@@ -1036,7 +1036,7 @@
 
   <div class="main-container">
     
-    <!-- FORMULAIRE -->
+    <!-- FORMULAIRE 
     <div class="form-section">
       <div class="form-group">
         <label for="input-name">Nom et Prénom du joueur</label>
@@ -1060,33 +1060,33 @@
       <button type="button" class="btn-download" id="btn-download">Télécharger l'Affiche (PNG)</button>
     </div>
 
-    <!-- ZONE D'AFFICHAGE / CARTE -->
+    <!-- ZONE D'AFFICHAGE / CARTE 
     <div class="preview-section">
       <div class="poster-card" id="poster-card">
         
-        <!-- Logo officiel en haut à gauche -->
+        <!-- Logo officiel en haut à gauche 
         <svg class="layer-official-logo" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="45" fill="#0f172a" stroke="#f59e0b" stroke-width="4"/>
           <text x="50%" y="45%" text-anchor="middle" fill="#ffffff" font-size="12" font-family="Montserrat" font-weight="800">UP TÉNORD</text>
           <text x="50%" y="65%" text-anchor="middle" fill="#f59e0b" font-size="14" font-family="Montserrat" font-weight="900">VBC</text>
         </svg>
 
-        <!-- Grand Logo filigrane en fond -->
+        <!-- Grand Logo filigrane en fond 
         <svg class="layer-background-logo" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff" stroke-width="5"/>
           <text x="50%" y="55%" text-anchor="middle" fill="#ffffff" font-size="20" font-family="Montserrat" font-weight="900">UP TÉNORD</text>
         </svg>
 
-        <!-- Photo détourée du joueur -->
+        <!-- Photo détourée du joueur 
         <img id="player-photo" class="layer-player-photo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23334155'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Joueur">
 
-        <!-- Cartouche texte -->
+        <!-- Cartouche texte 
         <div class="layer-info-box">
           <h3 id="display-name">NOM ET PRÉNOM</h3>
           <p id="display-role">Poste</p>
         </div>
 
-        <!-- Pied de page -->
+        <!-- Pied de page 
         <div class="layer-footer">
           f UP TÉNORD VBC
         </div>
